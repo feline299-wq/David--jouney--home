@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, viewport-fit=cover, user-scalable=no" />
 <title>David's Journey Home ☘️</title>
 <style>
   :root{
     --bg:#0f1226; --panel:#171a38; --ink:#fff7d6; --accent:#8ee36b; --accent2:#ffd45a;
   }
-  *{box-sizing:border-box}
-  html,body{margin:0;width:100%;height:100%;min-height:100dvh;background:#090b18;color:white;font-family:ui-monospace,Menlo,Consolas,monospace;overflow:hidden;overscroll-behavior:none}
+  *{box-sizing:border-box;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  html,body{margin:0;width:100%;height:100%;min-height:100dvh;background:#090b18;color:white;font-family:ui-monospace,Menlo,Consolas,monospace;overflow:hidden;overscroll-behavior:none;touch-action:none;-ms-touch-action:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
   body{display:grid;place-items:center}
-  #wrap{width:min(100vw,980px);height:100dvh;max-height:760px;position:relative;background:#0f1226;box-shadow:0 0 0 4px #000 inset;overflow:hidden}
+  #wrap{width:min(100vw,980px);height:100dvh;max-height:760px;position:relative;background:#0f1226;box-shadow:0 0 0 4px #000 inset;overflow:hidden;touch-action:none;-ms-touch-action:none}
   canvas{width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none}
   #hud{position:absolute;inset:0;pointer-events:none}
   #topbar{position:absolute;left:16px;right:16px;top:14px;display:flex;justify-content:space-between;gap:8px;font-weight:800;text-shadow:2px 2px #000;font-size:clamp(12px,2.3vw,18px)}
@@ -23,19 +23,47 @@
   .btn:active{transform:translateY(2px);background:rgba(255,255,255,.2)}
   #jump{width:88px;height:88px;border-radius:50%;font-size:16px;background:rgba(55,115,65,.9)}
   #startScreen,#endScreen{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(#10153b,#0c1028);z-index:5;padding:22px;text-align:center}
-  #startCard,#endCard{width:min(92%,720px);border:4px solid white;background:#161a3f;padding:24px;box-shadow:10px 10px 0 #000}
+  #startCard,#endCard{width:min(92%,720px);border:4px solid white;background:#161a3f;padding:24px;box-shadow:10px 10px 0 #000} #endCard{margin:auto 0;max-width:680px}
   h1{margin:0 0 12px;font-size:clamp(28px,6vw,56px);line-height:1.02}
   p{line-height:1.45}
-  .cta{border:0;background:#8ee36b;padding:14px 22px;font:inherit;font-weight:900;font-size:18px;box-shadow:5px 5px 0 #000;cursor:pointer}
+  .cta{touch-action:manipulation;-ms-touch-action:manipulation;border:0;background:#8ee36b;padding:14px 22px;font:inherit;font-weight:900;font-size:18px;box-shadow:5px 5px 0 #000;cursor:pointer}
   .small{opacity:.8;font-size:13px}
-  #endScreen{display:none;background:#05060d}
-  #photo{width:min(100%,520px);max-height:42vh;object-fit:cover;border:4px solid white;box-shadow:8px 8px 0 #000;margin:10px auto 16px;display:block}
+  #endScreen{display:none;background:#05060d;overflow-y:auto;-webkit-overflow-scrolling:touch;align-items:start;padding:calc(env(safe-area-inset-top,0px) + 18px) 12px calc(env(safe-area-inset-bottom,0px) + 28px)}
+  #photo{width:min(100%,480px);max-height:38vh;object-fit:contain;border:4px solid white;box-shadow:8px 8px 0 #000;margin:10px auto 16px;display:block}
   @media (orientation:landscape) and (max-height:600px){
     #controls{bottom:calc(env(safe-area-inset-bottom, 0px) + 72px)}
     .btn{width:62px;height:62px}
     #jump{width:74px;height:74px}
     #message{bottom:calc(env(safe-area-inset-bottom, 0px) + 145px)}
   }
+
+  @supports (-webkit-touch-callout: none) {
+    html, body, #wrap, canvas, #hud, #controls, .cluster, .btn {
+      touch-action: none !important;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .cta, #messageBtn, #rewardBtn {
+      touch-action: manipulation !important;
+      -webkit-touch-callout: none;
+    }
+  }
+
+
+  @media (max-width: 520px) {
+    #endScreen{place-items:start center;padding-top:calc(env(safe-area-inset-top,0px) + 12px)}
+    #endCard{width:94%;padding:16px;box-shadow:6px 6px 0 #000}
+    #endCard h1{font-size:clamp(28px,9vw,44px);margin-bottom:10px}
+    #endCard p{font-size:15px;line-height:1.35}
+    #photo{width:100%;max-height:34vh;margin:8px auto 12px}
+  }
+  @media (max-height: 700px) {
+    #endCard{padding:14px}
+    #endCard h1{font-size:30px}
+    #photo{max-height:30vh}
+  }
+
 </style>
 </head>
 <body>
@@ -191,6 +219,10 @@ function completeLevel(){
     paused=true;
     for(let i=0;i<120;i++) confetti.push({x:rnd(0,W),y:rnd(-200,0),vx:rnd(-1,1),vy:rnd(2,5),s:rnd(3,8),c:["#fff","#8ee36b","#ffd45a","#77c8ff"][Math.floor(rnd(0,4))]});
     showMessage("<b>ALINE:</b> “Took you long enough.” 😂<br><br><b>DAVID:</b> “Hi.”",()=>{
+      document.getElementById('controls').style.display='none';
+      const hint=document.getElementById('mobileHint');
+      if(hint) hint.style.display='none';
+      document.getElementById('topbar').style.display='none';
       document.getElementById('endScreen').style.display='grid';
     });
   }
@@ -405,11 +437,47 @@ document.getElementById('startBtn').onclick=()=>{
  running=true;beep(440,.07);setTimeout(()=>beep(660,.07),90);startLevel(0);
 };
 
+
+const __endScreen = document.getElementById('endScreen');
+const __endObserver = new MutationObserver(() => {
+  if (__endScreen.style.display !== 'none') {
+    const controls = document.getElementById('controls');
+    const hint = document.getElementById('mobileHint');
+    const topbar = document.getElementById('topbar');
+    if (controls) controls.style.display = 'none';
+    if (hint) hint.style.display = 'none';
+    if (topbar) topbar.style.display = 'none';
+  }
+});
+__endObserver.observe(__endScreen, {attributes:true, attributeFilter:['style']});
+
 document.getElementById('rewardBtn').onclick=()=>{
  document.getElementById('reward').style.display='block';
  document.getElementById('rewardBtn').style.display='none';
  beep(700,.08);setTimeout(()=>beep(900,.08),90);setTimeout(()=>beep(1200,.14),180);
 };
+
+// --- Mobile zoom guard -------------------------------------------------
+document.addEventListener('gesturestart', e => e.preventDefault(), {passive:false});
+document.addEventListener('gesturechange', e => e.preventDefault(), {passive:false});
+document.addEventListener('gestureend', e => e.preventDefault(), {passive:false});
+
+document.addEventListener('dblclick', e => e.preventDefault(), {passive:false});
+
+document.addEventListener('touchmove', e => {
+  if (e.touches && e.touches.length > 1) e.preventDefault();
+}, {passive:false});
+
+let __lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - __lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  __lastTouchEnd = now;
+}, {passive:false});
+// ----------------------------------------------------------------------
+
 levelText.textContent="DAVID'S JOURNEY HOME";
 goalText.textContent="☘️";
 loop();
